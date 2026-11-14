@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11170f">
+  <title>호들갑 챔피언십 — 교사편</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090c08;
+      --case: #1b211a;
+      --screen: #10180f;
+      --green: #85ff8a;
+      --green-bright: #c3ffc0;
+      --green-dim: #4a9f51;
+      --line: rgba(133, 255, 138, .24);
+      --muted: #8da78b;
+      --amber: #ffcf70;
+      --shadow: 0 0 28px rgba(105, 255, 116, .18), inset 0 0 42px rgba(105, 255, 116, .035);
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      padding: 38px 20px;
+      display: grid;
+      place-items: center;
+      overflow-x: hidden;
+      color: var(--green);
+      background:
+        radial-gradient(ellipse at 50% 42%, rgba(52, 83, 42, .22), transparent 62%),
+        repeating-linear-gradient(0deg, #090c08 0 2px, #0b0e09 2px 4px);
+    }
+
+    button { font: inherit; }
+
+    .monitor {
+      width: min(100%, 900px);
+      padding: clamp(14px, 3vw, 28px);
+      border: 1px solid #303a2d;
+      border-radius: 30px;
+      background: linear-gradient(145deg, #252b23, #131812 68%);
+      box-shadow: 0 32px 80px #000b, inset 0 1px 1px #ffffff18, inset 0 -3px 8px #0008;
+    }
+
+    .bezel {
+      position: relative;
+      min-height: 650px;
+      padding: clamp(22px, 5vw, 48px);
+      overflow: hidden;
+      border: 2px solid #303a2b;
+      border-radius: 24px / 18px;
+      background:
+        radial-gradient(ellipse at center, rgba(28, 48, 25, .48), transparent 75%),
+        var(--screen);
+      box-shadow: var(--shadow), inset 0 0 65px #000b;
+      isolation: isolate;
+    }
+
+    .bezel::before,
+    .bezel::after {
+      position: absolute;
+      z-index: 4;
+      inset: 0;
+      pointer-events: none;
+      content: "";
+    }
+
+    .bezel::before {
+      opacity: .13;
+      background: repeating-linear-gradient(0deg, transparent 0 3px, #b9ffad 4px, transparent 5px);
+    }
+
+    .bezel::after {
+      border-radius: inherit;
+      background: radial-gradient(ellipse, transparent 56%, #020502a6 100%);
+      box-shadow: inset 0 0 48px #0009;
+    }
+
+    .screen-content { position: relative; z-index: 1; }
+
+    .topline, .status-line, .round-row, .footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .topline {
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font: 700 11px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .live-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 9px var(--green);
+      animation: blink 1.8s steps(2, start) infinite;
+    }
+
+    .hero { padding: clamp(30px, 6vw, 56px) 0 28px; text-align: center; }
+
+    .eyebrow {
+      margin: 0 0 13px;
+      color: var(--green-dim);
+      font: 700 11px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+      letter-spacing: .24em;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--green-bright);
+      font-size: clamp(36px, 8vw, 68px);
+      font-weight: 900;
+      letter-spacing: -.075em;
+      line-height: 1.08;
+      text-shadow: 0 0 8px #85ff8a8a, 0 0 30px #85ff8a50;
+    }
+
+    .hero-copy {
+      max-width: 470px;
+      margin: 17px auto 0;
+      color: #a9bea4;
+      font-size: 14px;
+      line-height: 1.8;
+      word-break: keep-all;
+    }
+
+    .start-panel { text-align: center; }
+
+    .tournament-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      max-width: 540px;
+      margin: 30px auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #0a110a99;
+    }
+
+    .stat { padding: 17px 8px; }
+    .stat + .stat { border-left: 1px solid var(--line); }
+    .stat strong { display: block; color: var(--green-bright); font: 800 24px ui-monospace, monospace; }
+    .stat span { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
+
+    .primary-button, .quiet-button {
+      min-height: 48px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .primary-button {
+      padding: 0 28px;
+      border: 1px solid var(--green);
+      color: #091109;
+      background: var(--green);
+      box-shadow: 0 0 22px #85ff8a36;
+      font-weight: 900;
+    }
+
+    .primary-button:hover { transform: translateY(-2px); box-shadow: 0 0 30px #85ff8a66; }
+    .quiet-button { padding: 0 15px; border: 1px solid var(--line); color: var(--muted); background: transparent; font-size: 12px; }
+    .quiet-button:hover { color: var(--green-bright); border-color: var(--green-dim); }
+    button:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; }
+
+    .helper {
+      margin: 14px 0 0;
+      color: #73856f;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .game-panel, .winner-panel { display: none; }
+    .game-panel.active, .winner-panel.active { display: block; }
+    .start-panel.hidden { display: none; }
+
+    .status-line { margin: 4px 0 20px; color: var(--muted); font: 700 11px ui-monospace, monospace; }
+    .round-name { color: var(--green-bright); letter-spacing: .08em; }
+    .progress-track { height: 5px; overflow: hidden; border-radius: 9px; background: #263126; }
+    .progress-fill { width: 0; height: 100%; border-radius: inherit; background: var(--green); box-shadow: 0 0 12px var(--green); transition: width .35s ease; }
+
+    .match-heading { margin: 29px 0 17px; color: #a8bda2; text-align: center; font-size: 14px; font-weight: 600; }
+
+    .matchup {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: stretch;
+      gap: 14px;
+    }
+
+    .choice {
+      position: relative;
+      min-height: 255px;
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: space-between;
+      overflow: hidden;
+      border: 1px solid #446143;
+      border-radius: 12px;
+      color: var(--green-bright);
+      text-align: left;
+      background: linear-gradient(145deg, #172318, #0e160e);
+      cursor: pointer;
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .choice::after {
+      position: absolute;
+      right: -24px;
+      bottom: -34px;
+      color: #85ff8a0b;
+      content: attr(data-number);
+      font: 900 126px/1 ui-monospace, monospace;
+      pointer-events: none;
+    }
+
+    .choice:hover {
+      transform: translateY(-4px);
+      border-color: var(--green);
+      background: linear-gradient(145deg, #203421, #111b11);
+      box-shadow: 0 0 24px #85ff8a20, inset 0 0 24px #85ff8a0c;
+    }
+
+    .choice:active { transform: scale(.985); }
+    .choice-label { color: var(--green-dim); font: 700 10px ui-monospace, monospace; letter-spacing: .14em; }
+    .choice-title { margin: 20px 0 12px; font-size: clamp(18px, 2.8vw, 23px); font-weight: 900; line-height: 1.45; word-break: keep-all; }
+    .choice-description { margin: 0; color: #a5b6a0; font-size: 13px; line-height: 1.75; word-break: keep-all; }
+    .choose-hint { margin-top: 21px; color: var(--green); font-size: 11px; font-weight: 700; }
+
+    .versus {
+      align-self: center;
+      color: #668162;
+      font: italic 900 13px ui-monospace, monospace;
+    }
+
+    .footer-row { margin-top: 20px; }
+    .keyboard-hint { color: #73856f; font-size: 11px; }
+
+    .winner-panel { text-align: center; }
+    .winner-panel .hero { padding-bottom: 24px; }
+    .winner-crown { margin-bottom: 13px; color: var(--amber); font-size: 34px; filter: drop-shadow(0 0 12px #ffcf7066); }
+    .champion-card {
+      max-width: 600px;
+      margin: 0 auto 25px;
+      padding: 26px;
+      border: 1px solid var(--green);
+      border-radius: 14px;
+      background: linear-gradient(145deg, #1d321d, #101910);
+      box-shadow: 0 0 35px #85ff8a26;
+      text-align: left;
+    }
+
+    .champion-card .choice-title { margin-top: 11px; font-size: clamp(21px, 4vw, 30px); }
+    .champion-card .choice-description { font-size: 14px; }
+    .winner-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+
+    .bezel-foot {
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 8px 0;
+      color: #697363;
+      font: 700 9px ui-monospace, monospace;
+      letter-spacing: .12em;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 10;
+      right: 20px;
+      bottom: 20px;
+      max-width: calc(100vw - 40px);
+      padding: 12px 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--green-bright);
+      background: #111a11;
+      box-shadow: 0 8px 28px #0008;
+      font-size: 12px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: .2s ease;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @keyframes blink { 50% { opacity: .45; } }
+
+    @media (max-width: 620px) {
+      body { padding: 16px 10px; }
+      .monitor { padding: 11px; border-radius: 22px; }
+      .bezel { min-height: 0; padding: 23px 17px 20px; border-radius: 17px / 13px; }
+      .topline { font-size: 9px; }
+      .hero { padding: 34px 0 23px; }
+      .hero-copy { font-size: 13px; }
+      .matchup { grid-template-columns: 1fr; gap: 10px; }
+      .choice { min-height: 190px; padding: 18px; }
+      .choice-title { margin: 13px 0 8px; }
+      .choice-description { font-size: 12px; }
+      .versus { justify-self: center; margin: -3px 0; }
+      .footer-row { align-items: flex-start; }
+      .keyboard-hint { max-width: 175px; line-height: 1.6; }
+      .quiet-button { min-height: 40px; }
+      .bezel-foot { font-size: 8px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="monitor" aria-label="호들갑 챔피언십 게임">
+    <section class="bezel">
+      <div class="screen-content">
+        <header class="topline">
+          <span><i class="live-dot"></i>TEACHER OVERREACTION LEAGUE</span>
+          <span>CRT / P31 PHOSPHOR</span>
+        </header>
+
+        <section class="hero">
+          <p class="eyebrow">32 ENTRIES · 1 CHAMPION</p>
+          <h1>호들갑<br>챔피언십</h1>
+          <p class="hero-copy">교사의 마음을 가장 크게 흔드는 순간은 무엇일까요?<br>두 상황 중 더 공감되는 호들갑을 골라주세요.</p>
+        </section>
+
+        <section class="start-panel" id="startPanel">
+          <div class="tournament-stats" aria-label="대회 정보">
+            <div class="stat"><strong>32</strong><span>출전 상황</span></div>
+            <div class="stat"><strong>31</strong><span>선택 횟수</span></div>
+            <div class="stat"><strong>1</strong><span>최종 우승</span></div>
+          </div>
+          <button class="primary-button" id="startButton" type="button">대진 시작하기 <span aria-hidden="true">→</span></button>
+          <p class="helper">대진은 매번 무작위로 섞여요. 중간에 나가도 진행 상황은 이 기기에 저장됩니다.</p>
+        </section>
+
+        <section class="game-panel" id="gamePanel" aria-live="polite">
+          <div class="status-line">
+            <span class="round-name" id="roundName">32강</span>
+            <span id="matchCount">MATCH 01 / 16</span>
+          </div>
+          <div class="progress-track" role="progressbar" aria-label="대회 진행" aria-valuemin="0" aria-valuemax="31" aria-valuenow="0">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <p class="match-heading">더 호들갑스럽고 공감되는 쪽을 선택하세요</p>
+          <div class="matchup" id="matchup">
+            <button class="choice" id="choiceA" type="button" aria-label="첫 번째 상황 선택">
+              <span class="choice-label">OPTION A</span>
+              <span class="choice-copy"></span>
+              <span class="choose-hint">이 상황이 더 호들갑이다 <span aria-hidden="true">↗</span></span>
+            </button>
+            <span class="versus" aria-hidden="true">VS</span>
+            <button class="choice" id="choiceB" type="button" aria-label="두 번째 상황 선택">
+              <span class="choice-label">OPTION B</span>
+              <span class="choice-copy"></span>
+              <span class="choose-hint">이 상황이 더 호들갑이다 <span aria-hidden="true">↗</span></span>
+            </button>
+          </div>
+          <div class="footer-row">
+            <span class="keyboard-hint">키보드 <strong>1</strong> 또는 <strong>2</strong>로 선택</span>
+            <button class="quiet-button" id="restartButton" type="button">처음부터 다시</button>
+          </div>
+        </section>
+
+        <section class="winner-panel" id="winnerPanel" aria-live="polite">
+          <div class="hero">
+            <p class="eyebrow">TOURNAMENT COMPLETE</p>
+            <div class="winner-crown" aria-hidden="true">✦</div>
+            <h1>오늘의<br>호들갑 1위</h1>
+            <p class="hero-copy">32개 상황 중 여러분이 뽑은 최종 우승입니다.</p>
+          </div>
+          <article class="champion-card" id="championCard"></article>
+          <div class="winner-actions">
+            <button class="primary-button" id="playAgainButton" type="button">새 대진으로 다시 하기 <span aria-hidden="true">↻</span></button>
+            <button class="quiet-button" id="shareButton" type="button">결과 복사하기</button>
+          </div>
+        </section>
+      </div>
+    </section>
+    <footer class="bezel-foot"><span>PHOSPHOR DISPLAY // P31</span><span>TEACHER EDITION</span></footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    "use strict";
+
+    const entries = [
+      ["교장선생님의 “잠깐 봅시다”", "아직 용건도 안 들었는데 최근에 올린 기안부터 지난주 복무까지 혼자 점검함."],
+      ["수업에 교감선생님 들어옴", "그냥 잠깐 들어온 건데 평소 잘하던 수업도 갑자기 공개수업처럼 느껴짐."],
+      ["학생들이 오늘따라 너무 조용함", "수업이 잘되는 건지 재미가 없는 건지 조용할수록 오히려 불안해짐."],
+      ["학생들이 오늘따라 너무 신남", "참여가 활발하다고 좋아하다가 옆 반에 피해 갈까 봐 목소리 크기를 재기 시작함."],
+      ["수업 끝나고 학생이 “선생님…”", "질문 하나 하려는 건데 순간적으로 오늘 수업에서 내가 무슨 말을 했는지 돌아봄."],
+      ["수업 자료에 오타 발견", "학생들은 이미 다음 장 보고 있는데 교사 혼자 그 오타를 하루 종일 기억함."],
+      ["학생 한 명이 엎드려 있음", "어제 잠을 못 잤을 수도 있는데 내 수업이 재미없는 건 아닌지 슬쩍 생각해봄."],
+      ["수업 반응이 한 반만 다름", "같은 수업인데 한 반에서 반응이 없으면 수업 설계 전체가 잘못됐나 고민함."],
+      ["수업이 예상보다 10분 일찍 끝남", "여유가 생긴 게 아니라 내가 뭔가 빼먹었다는 생각부터 듦."],
+      ["수업이 5분 부족함", "다음 시간에 하면 되는데 진도표를 보며 학기 말까지 계산하기 시작함."],
+      ["시험문제 내고 나서 갑자기 쉬워 보임", "출제할 때는 적당했는데 인쇄하고 나면 전교생이 다 맞힐 것 같은 기분이 듦."],
+      ["시험문제 내고 나서 갑자기 어려워 보임", "11번을 걱정하다 조금 고치고 나면 이번에는 아무도 못 풀 것 같음."],
+      ["시험 중 학생이 손을 듦", "질문을 듣기도 전에 문제 오류 가능성을 머릿속에서 먼저 검토함."],
+      ["시험 끝나고 학생들이 답을 맞춰봄", "평범한 정답 확인인데 출제자는 멀리서 자기 문항 번호가 나오는지 귀가 열림."],
+      ["평균 점수가 예상보다 낮음", "학생들이 어려워했구나에서 끝나지 않고 출제, 수업, 설명, 교사 인생까지 잠깐 돌아봄."],
+      ["평균 점수가 예상보다 높음", "잘 가르쳤다고 생각하면 되는데 이번에는 시험을 너무 쉽게 냈나 걱정함."],
+      ["학부모에게 전화가 옴", "전화번호를 보는 몇 초 동안 오늘 있었던 일을 빠르게 검색함."],
+      ["학부모가 “여쭤볼 게 있는데요”", "아직 질문도 안 나왔는데 머릿속에서는 답변 자료가 만들어지기 시작함."],
+      ["보낸 가정통신문 다시 읽기", "보내기 전에는 안 보이던 표현이 발송 버튼을 누른 순간부터 보이기 시작함."],
+      ["단체문자 발송 직후", "내용보다 수신 대상 제대로 선택했는지를 세 번 확인함."],
+      ["업무 메신저에 “선생님”만 옴", "뒤에 이어질 한 문장을 기다리는 시간이 평소보다 유난히 길게 느껴짐."],
+      ["공문 제목에 ‘제출’이 보임", "내용을 읽기도 전에 마감일부터 찾음."],
+      ["마감이 오늘인 걸 발견함", "사실 10분이면 되는 일인데 발견한 순간 오늘 하루 전체가 바빠진 느낌이 듦."],
+      ["기안 올리고 오타 발견", "결재 내용은 완벽한데 띄어쓰기 하나 때문에 회수할지 5분간 고민함."],
+      ["결재가 평소보다 오래 걸림", "결재자가 바쁜 것뿐인데 혹시 내용에 문제가 있나 다시 열어봄."],
+      ["회의에서 갑자기 내 이름이 나옴", "좋은 이야기일 수도 있는데 일단 새로운 업무가 생기는 방향으로 예상함."],
+      ["“간단하게 하나만 부탁드릴게요”", "교직 생활을 통해 ‘간단하게’와 실제 업무량은 별개의 개념임을 알고 있음."],
+      ["새로운 교육 플랫폼 등장", "이번엔 정말 편해진다는 설명을 들으며 기존 플랫폼 비밀번호부터 떠올림."],
+      ["AI가 수업자료를 10초 만에 만듦", "신기해하다가 내용 검토하고 수정하다 보면 어느새 40분이 지나 있음."],
+      ["학생이 AI로 과제를 너무 잘해옴", "처음에는 감탄하다가 갑자기 이걸 학생이 한 건지 AI가 한 건지 교육철학의 문제로 넘어감."],
+      ["방학 계획 세우기", "이번 방학에는 연수도 듣고 책도 읽고 연구도 하겠다고 계획했다가 개학 며칠 전에 방학이 짧았다는 사실을 깨달음."],
+      ["퇴근하면서 “오늘은 일 생각 안 해야지”", "학교를 나오는 순간 수업 아이디어가 생각나서 자기 자신에게 업무를 추가함."]
+    ].map(([title, description], id) => ({ id, title, description }));
+
+    const STORAGE_KEY = "teacher-overreaction-tournament-v1";
+    const roundLabels = { 32: "32강", 16: "16강", 8: "8강", 4: "준결승", 2: "결승" };
+    const startPanel = document.getElementById("startPanel");
+    const gamePanel = document.getElementById("gamePanel");
+    const winnerPanel = document.getElementById("winnerPanel");
+    const choiceA = document.getElementById("choiceA");
+    const choiceB = document.getElementById("choiceB");
+    const toast = document.getElementById("toast");
+    let state = null;
+    let toastTimer;
+
+    function shuffle(items) {
+      const result = [...items];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (error) {
+        showToast("저장할 수 없어요. 브라우저 저장 공간을 확인해 주세요.");
+      }
+    }
+
+    function load() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const saved = JSON.parse(raw);
+        const knownIds = new Set(entries.map(entry => entry.id));
+        if (!Array.isArray(saved.pool) || !Array.isArray(saved.winners) ||
+            !saved.pool.every(id => knownIds.has(id)) ||
+            !saved.winners.every(id => knownIds.has(id)) ||
+            !Number.isInteger(saved.completed) || saved.completed < 0 || saved.completed > 31) {
+          localStorage.removeItem(STORAGE_KEY);
+          return null;
+        }
+        return saved;
+      } catch (error) {
+        localStorage.removeItem(STORAGE_KEY);
+        return null;
+      }
+    }
+
+    function startTournament() {
+      state = { pool: shuffle(entries.map(entry => entry.id)), winners: [], completed: 0 };
+      save();
+      render();
+    }
+
+    function getEntry(id) {
+      return entries.find(entry => entry.id === id);
+    }
+
+    function populateChoice(button, entry, number) {
+      button.dataset.id = String(entry.id);
+      button.dataset.number = number;
+      button.querySelector(".choice-copy").innerHTML =
+        `<span class="choice-title"></span><span class="choice-description"></span>`;
+      button.querySelector(".choice-title").textContent = entry.title;
+      button.querySelector(".choice-description").textContent = entry.description;
+    }
+
+    function render() {
+      startPanel.classList.add("hidden");
+      gamePanel.classList.remove("active");
+      winnerPanel.classList.remove("active");
+
+      if (state.pool.length === 1) {
+        renderWinner();
+        return;
+      }
+
+      gamePanel.classList.add("active");
+      const remaining = state.pool.length;
+      document.getElementById("roundName").textContent = roundLabels[remaining] || `${remaining}강`;
+      document.getElementById("matchCount").textContent =
+        `MATCH ${String(state.winners.length + 1).padStart(2, "0")} / ${remaining / 2}`;
+      const progress = document.querySelector('[role="progressbar"]');
+      progress.setAttribute("aria-valuenow", String(state.completed));
+      document.getElementById("progressFill").style.width = `${(state.completed / 31) * 100}%`;
+      populateChoice(choiceA, getEntry(state.pool[0]), "01");
+      populateChoice(choiceB, getEntry(state.pool[1]), "02");
+    }
+
+    function choose(winnerId) {
+      if (!state || state.pool.length < 2) return;
+      state.winners.push(Number(winnerId));
+      state.pool.splice(0, 2);
+      state.completed += 1;
+
+      if (state.pool.length === 0) {
+        state.pool = shuffle(state.winners);
+        state.winners = [];
+      }
+
+      save();
+      render();
+    }
+
+    function renderWinner() {
+      gamePanel.classList.remove("active");
+      winnerPanel.classList.add("active");
+      const champion = getEntry(state.pool[0]);
+      const card = document.getElementById("championCard");
+      card.replaceChildren();
+      const label = document.createElement("span");
+      label.className = "choice-label";
+      label.textContent = "★ TOURNAMENT CHAMPION";
+      const title = document.createElement("h2");
+      title.className = "choice-title";
+      title.textContent = champion.title;
+      const description = document.createElement("p");
+      description.className = "choice-description";
+      description.textContent = champion.description;
+      card.append(label, title, description);
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2300);
+    }
+
+    function confirmRestart() {
+      if (!state || state.completed === 0 || state.pool.length === 1) {
+        startTournament();
+        return;
+      }
+      if (window.confirm("지금까지의 대진을 지우고 새로 시작할까요?")) startTournament();
+    }
+
+    document.getElementById("startButton").addEventListener("click", startTournament);
+    document.getElementById("restartButton").addEventListener("click", confirmRestart);
+    document.getElementById("playAgainButton").addEventListener("click", startTournament);
+    choiceA.addEventListener("click", () => choose(choiceA.dataset.id));
+    choiceB.addEventListener("click", () => choose(choiceB.dataset.id));
+    document.addEventListener("keydown", event => {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.target instanceof HTMLInputElement) return;
+      if (!gamePanel.classList.contains("active")) return;
+      if (event.key === "1") choose(choiceA.dataset.id);
+      if (event.key === "2") choose(choiceB.dataset.id);
+    });
+
+    document.getElementById("shareButton").addEventListener("click", async () => {
+      const winner = getEntry(state.pool[0]);
+      const result = `🏆 교사 호들갑 챔피언십 1위\n${winner.title}\n${winner.description}`;
+      try {
+        await navigator.clipboard.writeText(result);
+        showToast("우승 결과를 복사했어요!");
+      } catch (error) {
+        showToast("복사할 수 없어요. 브라우저에서 클립보드 권한을 확인해 주세요.");
+      }
+    });
+
+    state = load();
+    if (state) render();
+  </script>
+</body>
+</html>
